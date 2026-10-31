@@ -1,0 +1,40 @@
+# ---- Confidential company data: never commit ----
+# ERP exports and any other spreadsheets / data dumps
+*.xlsx
+*.xlsm
+*.xls
+*.xlsb
+*.csv
+~$*
+# Uploaded snapshots (SQLite database)
+backend/data/
+*.db
+*.sqlite
+*.sqlite3
+# Real buyer/category name mappings (commit aliases.example.json instead)
+backend/app/aliases.json
+
+# ---- Secrets ----
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# ---- Python ----
+backend/.venv/
+.venv/
+__pycache__/
+*.pyc
+
+# ---- Node / build output ----
+frontend/node_modules/
+frontend/dist/
+node_modules/
+
+# ---- Logs, OS and editor files ----
+*.log
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

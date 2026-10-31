@@ -1,0 +1,13 @@
+{
+  "_comment": "Copy to aliases.json (git-ignored) and fill in the real names. Maps names as they appear in the ERP exports to one canonical name. Restart the server after editing; re-upload old files to re-apply.",
+  "buyers": {
+    "Buyer A Fullname": "Buyer A",
+    "BuyerB": "Buyer B",
+    "Former Buyer": "Current Buyer"
+  },
+  "categories": {
+    "Non OEM": "Non-OEM",
+    "Chemical/Gas": "Chem/Gas",
+    "Transportation/Security": "Transport/Security"
+  }
+}
