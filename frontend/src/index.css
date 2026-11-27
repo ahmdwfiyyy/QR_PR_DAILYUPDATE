@@ -1,0 +1,85 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap");
+@import "tailwindcss";
+
+/* Carsem brand colours (same as the Shipping Portal) */
+@theme {
+  --color-brand-navy: #071b55;
+  --color-brand-blue: #0b3c91;
+  --color-brand-bright: #1559d6;
+  --color-brand-red: #ed2924;
+  --color-brand-red-dark: #c91e1a;
+  --color-brand-ice: #f3f7ff;
+}
+
+:root {
+  font-family: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background: #f3f7ff;
+}
+
+button,
+select,
+input,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.brand-grid {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.brand-ribbon {
+  background: linear-gradient(
+    135deg,
+    transparent 0 38%,
+    rgba(237, 41, 36, 0.96) 38% 48%,
+    transparent 48% 54%,
+    rgba(255, 255, 255, 0.14) 54% 63%,
+    transparent 63%
+  );
+}
+
+.panel-glow {
+  background:
+    radial-gradient(circle at 85% 20%, rgba(21, 89, 214, 0.12), transparent 28%),
+    radial-gradient(circle at 8% 90%, rgba(237, 41, 36, 0.08), transparent 24%);
+}
+
+button:focus-visible,
+select:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+a:focus-visible,
+label:has(input:focus-visible) {
+  outline: 3px solid rgba(37, 99, 235, 0.25);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

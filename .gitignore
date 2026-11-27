@@ -1,3 +1,14 @@
+node_modules
+dist
+__pycache__
+*.pyc
+.venv
+.env
+.DS_Store
+.pytest_cache
+.coverage
+*.log
+
 # ---- Confidential company data: never commit ----
 # ERP exports and any other spreadsheets / data dumps
 *.xlsx
@@ -6,35 +17,24 @@
 *.xlsb
 *.csv
 ~$*
-# Uploaded snapshots (SQLite database)
-backend/data/
+# Databases (old SQLite file from before the Docker move, test runs)
 *.db
 *.sqlite
 *.sqlite3
+backend/data/
 # Real buyer/category name mappings (commit aliases.example.json instead)
-backend/app/aliases.json
+backend/config/aliases.json
 
 # ---- Secrets ----
-.env
 .env.*
 !.env.example
 *.pem
 *.key
 
-# ---- Python ----
-backend/.venv/
-.venv/
-__pycache__/
-*.pyc
+# ---- Internal project docs - kept local, not pushed to GitHub ----
+CLAUDE.md
 
-# ---- Node / build output ----
-frontend/node_modules/
-frontend/dist/
-node_modules/
-
-# ---- Logs, OS and editor files ----
-*.log
-.DS_Store
-Thumbs.db
+# ---- Editor files ----
 .vscode/
 .idea/
+Thumbs.db

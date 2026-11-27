@@ -1,0 +1,8 @@
+__pycache__
+*.pyc
+.venv
+.pytest_cache
+data
+*.db
+# Real names: mounted at runtime from ./backend/config, never baked into the image
+config/aliases.json

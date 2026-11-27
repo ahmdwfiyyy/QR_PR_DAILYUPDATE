@@ -1,66 +1,44 @@
-import os
-import sqlite3
-from contextlib import contextmanager
-from pathlib import Path
+"""Database engine, session factory and the declarative base for all models."""
+from collections.abc import Iterator
+from datetime import datetime, timezone
 
-DB_PATH = Path(os.environ.get("QRPR_DB") or Path(__file__).resolve().parent.parent / "data" / "app.db")
+from sqlalchemy import MetaData, create_engine, event
+from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
-SCHEMA = """
-CREATE TABLE IF NOT EXISTS snapshots (
-    id            INTEGER PRIMARY KEY AUTOINCREMENT,
-    kind          TEXT NOT NULL,          -- 'PR' or 'QR'
-    snapshot_date TEXT NOT NULL,          -- YYYY-MM-DD
-    filename      TEXT,
-    uploaded_at   TEXT NOT NULL,
-    UNIQUE (kind, snapshot_date)
-);
+from app.core.config import get_settings
 
--- One row per open item per snapshot. dataset: 'PR', 'BU' (QR Buyer Update), 'BV' (QR Buyer Verify)
-CREATE TABLE IF NOT EXISTS items (
-    id               INTEGER PRIMARY KEY AUTOINCREMENT,
-    snapshot_id      INTEGER NOT NULL REFERENCES snapshots(id) ON DELETE CASCADE,
-    dataset          TEXT NOT NULL,
-    doc_no           TEXT NOT NULL,       -- PR_No / QR No.
-    doc_date         TEXT,                -- Created_Date / QR Date
-    description      TEXT,                -- Remarks / Description
-    category         TEXT,
-    category_raw     TEXT,
-    buyer            TEXT,
-    buyer_raw        TEXT,
-    requestor        TEXT,
-    department       TEXT,                -- PR Department / QR Site
-    approver         TEXT,                -- PR ApproveUser / QR Current Approver
-    status           TEXT,
-    aging_days       INTEGER,             -- DaysAging / Elapsed(Days)
-    vendor           TEXT,                -- PR Vendor_Recommended / QR Pending (quoted vendors)
-    total_price      REAL,
-    currency         TEXT,
-    cost_block       TEXT,
-    cer_no           TEXT,
-    mer_no           TEXT,
-    expenditure_type TEXT,
-    last_operate     TEXT,
-    submission_date  TEXT
-);
-
-CREATE INDEX IF NOT EXISTS ix_items_snapshot ON items (snapshot_id, dataset);
-CREATE INDEX IF NOT EXISTS ix_items_doc ON items (dataset, doc_no);
-"""
+# Predictable constraint names so Alembic migrations stay stable
+NAMING = {
+    "ix": "ix_%(column_0_label)s",
+    "uq": "uq_%(table_name)s_%(column_0_name)s",
+    "ck": "ck_%(table_name)s_%(constraint_name)s",
+    "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
+    "pk": "pk_%(table_name)s",
+}
 
 
-def init_db() -> None:
-    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
-    with connect() as conn:
-        conn.executescript(SCHEMA)
+class Base(DeclarativeBase):
+    metadata = MetaData(naming_convention=NAMING)
 
 
-@contextmanager
-def connect():
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    conn.execute("PRAGMA foreign_keys = ON")
+def utcnow() -> datetime:
+    return datetime.now(timezone.utc)
+
+
+engine = create_engine(get_settings().database_url, pool_pre_ping=True)
+
+if engine.dialect.name == "sqlite":  # quick test runs: SQLite only cascades deletes with this on
+    @event.listens_for(engine, "connect")
+    def _sqlite_foreign_keys(conn, _):
+        conn.execute("PRAGMA foreign_keys = ON")
+
+
+SessionLocal = sessionmaker(bind=engine, autoflush=False, expire_on_commit=False)
+
+
+def get_db() -> Iterator[Session]:
+    db = SessionLocal()
     try:
-        yield conn
-        conn.commit()
+        yield db
     finally:
-        conn.close()
+        db.close()
