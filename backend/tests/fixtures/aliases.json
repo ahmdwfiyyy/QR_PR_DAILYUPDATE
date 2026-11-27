@@ -1,0 +1,10 @@
+{
+  "_comment": "Fake names used by the tests only.",
+  "buyers": {
+    "Alice Fullname": "Alice",
+    "Old Buyer": "Bob"
+  },
+  "categories": {
+    "Non OEM": "Non-OEM"
+  }
+}

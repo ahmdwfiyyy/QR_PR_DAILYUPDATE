@@ -1,0 +1,46 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-qr_pr}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-qr_pr}
+      - POSTGRES_DB=${POSTGRES_DB:-qr_pr}
+    ports:
+      - "${DB_PORT:-5433}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # Creates the separate test database on first start
+      - ./backend/docker/init-test-db.sql:/docker-entrypoint-initdb.d/init-test-db.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-qr_pr} -d ${POSTGRES_DB:-qr_pr}"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  backend:
+    build: ./backend
+    ports:
+      - "${API_PORT:-8001}:8000"
+    environment:
+      - DATABASE_URL=postgresql+psycopg://${POSTGRES_USER:-qr_pr}:${POSTGRES_PASSWORD:-qr_pr}@db:5432/${POSTGRES_DB:-qr_pr}
+      - TEST_DATABASE_URL=postgresql+psycopg://${POSTGRES_USER:-qr_pr}:${POSTGRES_PASSWORD:-qr_pr}@db:5432/qr_pr_test
+      - APP_TIMEZONE=${APP_TIMEZONE:-Asia/Kuala_Lumpur}
+      - AGED_DAYS=${AGED_DAYS:-3}
+      - MAX_UPLOAD_MB=${MAX_UPLOAD_MB:-10}
+      - ALIASES_DIR=/app/config
+    volumes:
+      # Buyer/category name mappings (aliases.json is git-ignored); restart the backend after editing
+      - ./backend/config:/app/config:ro
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "${APP_PORT:-8080}:80"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
